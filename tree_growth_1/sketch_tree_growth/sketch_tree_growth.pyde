@@ -1,17 +1,20 @@
 """
-A Processing implementation of XXX
+A Processing implementation of a Lindenmayer System with added animation and rainbow trees *-*. 
+Author: Carina Karner 
 """
 
 # Variables for timer
 interval = 100
 lastRecordedTime = 0
-max_depth = 15
-theta0 = 25*PI/180
+lastRecordedTime2 = 1700
+max_depth = 14
+theta0 = 20*PI/180
+depth=1 
+it=0
 
 def recursion(max_depth, theta0, xs,ys,xe,ye,ls, theta,depth,rlist,sigma):
    
     if depth < max_depth:
-        ls = ls*0.8
         xn = 0
         yn = ls
         
@@ -26,9 +29,10 @@ def recursion(max_depth, theta0, xs,ys,xe,ye,ls, theta,depth,rlist,sigma):
     
         depth = depth+1 
         rlist.append([xs,ys,xe,ye,depth])
+        ls = ls*0.8
         exit_code = recursion(max_depth, theta0, xs,ys,xe,ye,ls, theta,depth,rlist,-1)
         exit_code = recursion(max_depth, theta0, xs,ys,xe,ye,ls, theta,depth,rlist,1)
-  
+    
     return False
     
 def setup():
@@ -41,11 +45,19 @@ def setup():
     global max_depth 
     global theta0
     global ls 
-    print("hallo")
+    global A 
+    global depth_list
+    global font
+    global textx 
+    
+    textx = width/2 - 100
+    
+    A=height*0.99
     colorMode(HSB, 360, 360, 360)
     size(600,600)    
+    font = createFont("SignPainter-HouseScriptSemibold",40)
     
-    ls = 50
+    ls = 40
     theta = 0
     depth = 0 
     
@@ -59,34 +71,57 @@ def setup():
     rlist=[]
     exit_code = recursion(max_depth, theta0, xs,ys,xe,ye,ls,theta,depth,rlist,1)
     exit_code = recursion(max_depth, theta0, xs,ys,xe,ye,ls, theta,depth,rlist,-1)
-    print(rlist)
-    
+
+    depth_list=[]
+    for depth in range(0,16):
+         sublist = [x for x in rlist if x[4]==depth]
+         depth_list.append(sublist)
 
 def draw():
+    
     global lastRecordedTime
     global rlist 
     global max_depth 
+    global depth 
+    global depth_list
+    global font 
     h=0
-    for i,l in enumerate(rlist):
-        if (h > 360):
-            h = 0
-            
-        h += 2
-        strokeWeight(2)
-      
-        if l[4]<6:
-            stroke(62,360,360)
+    global textx 
+    global it
+
+    if millis()<2500 and millis()-lastRecordedTime > interval:
     
-        if l[4]>5:
-            stroke(h, 360, 360)
+        lst = depth_list[depth]
+        depth=depth+1
         
-        a=3*width/4
-        
-        line(l[0],l[1],l[2],l[3])
-        #line(l[0],-l[1]+a,l[2],-l[3]+a)
-        #line(-l[0]+a,l[1],-l[2]+a,l[3])
-        
-    #if millis()-lastRecordedTime > interval:
-        #xs,ys,xe,ye,ls,theta = iteration(xs,ys,xe,ye,ls,theta)    
-        #lastRecordedTime = millis()
+        for i,l in enumerate(lst):
+            if (h > 360):
+                h = 0
+            h += 2
     
+            if l[4]<6:
+                stroke(62,360,360)
+                strokeWeight(5)
+    
+            if l[4]>5:
+                stroke(h, 360, 360)
+                strokeWeight(2)
+        
+            line(l[0],l[1],l[2],l[3])
+            line(l[0],-l[1]+A,l[2],-l[3]+A)
+            lastRecordedTime = millis()
+    
+
+   
+    if millis()>1500:
+        message="Welcome to GT_"
+        textFont(font)            
+        fill(62,360,360)
+        print("hallo")
+        print("texttx",textx)
+        if millis()-lastRecordedTime > interval and it<len(message):
+            text(message[it],textx,height/2)
+            textx = textx+textWidth(message[it]) 
+            it=it+1
+            print(millis())
+            lastRecordedTime = millis()
